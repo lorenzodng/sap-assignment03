@@ -7,5 +7,5 @@ import java.util.List;
 
 @InboundPort
 public interface AssignDrone {
-    Drone assign(List<Drone> drones, double packageWeight, double pickupLatitude, double pickupLongitude, double distancePickupToDelivery);
+    Drone assign(List<Drone> drones, double packageWeight, double pickupLatitude, double pickupLongitude, double distancePickupToDelivery, int deliveryTimeLimit);
 }

@@ -5,5 +5,5 @@ import drone_management.domain.Drone;
 
 @InboundPort
 public interface CheckDroneAvailability {
-    boolean check(Drone drone, double packageWeight, double distanceDroneToPickup, double distancePickupToDelivery);
+    boolean check(Drone drone, double packageWeight, double distanceDroneToPickup, double distancePickupToDelivery, int deliveryTimeLimit);
 }

@@ -9,7 +9,7 @@ import request_management.domain.Shipment;
 import java.util.HashMap;
 import java.util.Map;
 
-//broker kafka che invia gli eventi ai microservizi
+//broker kafka che pubblica gli eventi di richiesta spedizione
 @Adapter
 public class ShipmentEventProducer {
 
@@ -18,7 +18,7 @@ public class ShipmentEventProducer {
 
     public ShipmentEventProducer(Vertx vertx) {
         Map<String, String> config = new HashMap<>();
-        config.put("bootstrap.servers", System.getenv().getOrDefault("KAFKA_BOOTSTRAP_SERVERS", "localhost:9092")); //legge dal file .env
+        config.put("bootstrap.servers", System.getenv("KAFKA_BOOTSTRAP_SERVERS")); //legge dal file .env
         config.put("key.serializer", "org.apache.kafka.common.serialization.StringSerializer"); //la chiave dell'evento è in formato stinga
         config.put("value.serializer", "org.apache.kafka.common.serialization.StringSerializer"); //il valore dell'evento è in formato stringa
         this.producer = KafkaProducer.create(vertx, config); //crea il producer kafka

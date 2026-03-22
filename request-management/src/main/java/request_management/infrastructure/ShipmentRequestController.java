@@ -9,7 +9,8 @@ import request_management.application.ValidateShipmentRequest;
 import request_management.domain.Package;
 import request_management.domain.Position;
 import request_management.domain.Shipment;
-import java.time.LocalDateTime;
+import java.time.LocalDate;
+import java.time.LocalTime;
 import java.util.UUID;
 
 //controller che riceve le richieste dal client
@@ -28,7 +29,7 @@ public class ShipmentRequestController {
 
     //registra la rotta
     public void registerRoutes(Router router) {
-        router.post("/shipments").handler(BodyHandler.create()).handler(this::createShipment); //quando arriva una richiesta sulla rotta /shipments, invoca il metodo
+        router.post("/shipments").handler(BodyHandler.create()).handler(this::createShipment); //quando arriva una richiesta sulla rotta "/shipments", invoca il metodo
     }
 
     //crea la richiesta e invoca il broker kafka
@@ -39,12 +40,10 @@ public class ShipmentRequestController {
         Position pickupLocation = new Position(body.getJsonObject("pickupLocation").getDouble("latitude"), body.getJsonObject("pickupLocation").getDouble("longitude"));
         Position deliveryLocation = new Position(body.getJsonObject("deliveryLocation").getDouble("latitude"), body.getJsonObject("deliveryLocation").getDouble("longitude"));
         Package pack = new Package(UUID.randomUUID().toString(), body.getJsonObject("package").getDouble("weight"), body.getJsonObject("package").getBoolean("fragile"));
-        Shipment shipment = createShipmentRequest.create(UUID.randomUUID().toString(), pickupLocation, deliveryLocation, LocalDateTime.parse(body.getString("pickupTime")), body.getInteger("deliveryTimeLimit"), pack);
-
-        //valida e pubblica l'evento verso kafka
-        if (validateShipmentRequest.validate(shipment)) {
-            eventProducer.publishShipmentRequested(shipment);
-            ctx.response().setStatusCode(201).putHeader("Content-Type", "application/json").end(shipment.getId());
+        Shipment shipment = createShipmentRequest.create(UUID.randomUUID().toString(), pickupLocation, deliveryLocation, LocalDate.parse(body.getString("pickupDate")), LocalTime.parse(body.getString("pickupTime")), body.getInteger("deliveryTimeLimit"), pack);
+        if (validateShipmentRequest.validate(shipment)) {  //valida la richiesta
+            eventProducer.publishShipmentRequested(shipment); //invoca il produttore per pubblicare l'evento
+            ctx.response().setStatusCode(201).putHeader("Content-Type", "application/json").end(shipment.getId()); //costruisce il messaggio di risposta e lo invia all'api-gateway
         } else {
             ctx.response().setStatusCode(400).end("Invalid request");
         }

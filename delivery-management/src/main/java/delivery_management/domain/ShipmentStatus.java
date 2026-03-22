@@ -1,4 +1,4 @@
-package request_management.domain;
+package delivery_management.domain;
 
 public enum ShipmentStatus {
     REQUESTED,

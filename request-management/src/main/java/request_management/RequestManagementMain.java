@@ -12,7 +12,7 @@ public class RequestManagementMain {
 
     public static void main(String[] args) {
         Dotenv.load(); //carica le variabili del file .env
-        int port = Integer.parseInt(System.getenv().getOrDefault("PORT", "8081"));
+        int port = Integer.parseInt(System.getenv("PORT"));
 
         Vertx vertx = Vertx.vertx();
 

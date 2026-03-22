@@ -14,7 +14,7 @@ public class AssignDroneImpl implements AssignDrone {
 
     //assegna il drone alla spedizione
     @Override
-    public Drone assign(List<Drone> drones, double packageWeight, double pickupLatitude, double pickupLongitude, double distancePickupToDelivery) {
+    public Drone assign(List<Drone> drones, double packageWeight, double pickupLatitude, double pickupLongitude, double distancePickupToDelivery, int deliveryTimeLimit) {
         Position pickupPosition = new Position(pickupLatitude, pickupLongitude);
 
         /*
@@ -27,7 +27,7 @@ public class AssignDroneImpl implements AssignDrone {
          */
         return drones.stream().filter(drone -> drone.isAvailable()).filter(drone -> {
             double distanceDroneToPickup = calculateDistance(drone.getPosition(), pickupPosition);
-            return checkDroneAvailability.check(drone, packageWeight, distanceDroneToPickup, distancePickupToDelivery);
+            return checkDroneAvailability.check(drone, packageWeight, distanceDroneToPickup, distancePickupToDelivery, deliveryTimeLimit);
         }).min((d1, d2) -> Double.compare(calculateDistance(d1.getPosition(), pickupPosition), calculateDistance(d2.getPosition(), pickupPosition))).orElse(null);
     }
 
