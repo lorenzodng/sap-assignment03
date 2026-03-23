@@ -12,7 +12,7 @@ import java.util.Map;
 
 //recupera l'evento di creazione richiesta spedizione pubblicato dal gestore richieste
 @Adapter
-public class ShipmentEventConsumer {
+public class ShipmentRequestedEventConsumer {
 
     private static final String TOPIC = "shipment-requested";
     private final KafkaConsumer<String, String> consumer;
@@ -20,7 +20,7 @@ public class ShipmentEventConsumer {
     private final List<Drone> drones;
     private final DroneEventProducer eventProducer;
 
-    public ShipmentEventConsumer(Vertx vertx, AssignDrone assignDrone, List<Drone> drones, DroneEventProducer eventProducer) {
+    public ShipmentRequestedEventConsumer(Vertx vertx, AssignDrone assignDrone, List<Drone> drones, DroneEventProducer eventProducer) {
         this.assignDrone = assignDrone;
         this.drones = drones;
         this.eventProducer = eventProducer;
@@ -50,6 +50,9 @@ public class ShipmentEventConsumer {
         if (assignedDrone != null) {
             assignedDrone.setAvailable(false);
             eventProducer.publishDroneAssigned(shipmentId, assignedDrone, pickupLatitude, pickupLongitude, deliveryLatitude, deliveryLongitude);
+        } else {
+            System.out.println("No drone available for shipment: " + shipmentId);
+            eventProducer.publishDroneNotAvailable(shipmentId);
         }
     }
 

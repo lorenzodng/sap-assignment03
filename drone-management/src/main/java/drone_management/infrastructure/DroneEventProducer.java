@@ -9,7 +9,7 @@ import drone_management.domain.Drone;
 import java.util.HashMap;
 import java.util.Map;
 
-//broker kafka che pubblica gli eventi di assegnazione drone
+//producer kafka che pubblica gli eventi di assegnazione drone
 @Adapter
 public class DroneEventProducer {
 
@@ -24,7 +24,7 @@ public class DroneEventProducer {
         this.producer = KafkaProducer.create(vertx, config);
     }
 
-    //pubblica l'evento sul canale dedicato
+    //pubblica l'evento di drone assegnato sul canale dedicato
     public void publishDroneAssigned(String shipmentId, Drone drone, double pickupLatitude, double pickupLongitude, double deliveryLatitude, double deliveryLongitude) {
         //costruisce l'evento json con tutte le informazioni necessarie per il calcolo della posizione del drone/pacco
         JSONObject event = new JSONObject();
@@ -40,6 +40,14 @@ public class DroneEventProducer {
         event.put("assignedAt", System.currentTimeMillis());
 
         KafkaProducerRecord<String, String> record = KafkaProducerRecord.create(TOPIC, shipmentId, event.toString());
+        producer.send(record);
+    }
+
+    //pubblica l'evento di drone non disponibile sul canale dedicato
+    public void publishDroneNotAvailable(String shipmentId) {
+        JSONObject event = new JSONObject();
+        event.put("shipmentId", shipmentId);
+        KafkaProducerRecord<String, String> record = KafkaProducerRecord.create("drone-not-available", shipmentId, event.toString());
         producer.send(record);
     }
 }

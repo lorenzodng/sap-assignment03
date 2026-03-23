@@ -9,6 +9,7 @@ import request_management.application.ValidateShipmentRequest;
 import request_management.domain.Package;
 import request_management.domain.Position;
 import request_management.domain.Shipment;
+import request_management.domain.User;
 import java.time.LocalDate;
 import java.time.LocalTime;
 import java.util.UUID;
@@ -37,12 +38,14 @@ public class ShipmentRequestController {
         var body = ctx.body().asJsonObject();
 
         //crea la richiesta
+        User user = new User(body.getString("userId"), body.getString("userName"), body.getString("userSurname"));
         Position pickupLocation = new Position(body.getJsonObject("pickupLocation").getDouble("latitude"), body.getJsonObject("pickupLocation").getDouble("longitude"));
         Position deliveryLocation = new Position(body.getJsonObject("deliveryLocation").getDouble("latitude"), body.getJsonObject("deliveryLocation").getDouble("longitude"));
         Package pack = new Package(UUID.randomUUID().toString(), body.getJsonObject("package").getDouble("weight"), body.getJsonObject("package").getBoolean("fragile"));
-        Shipment shipment = createShipmentRequest.create(UUID.randomUUID().toString(), pickupLocation, deliveryLocation, LocalDate.parse(body.getString("pickupDate")), LocalTime.parse(body.getString("pickupTime")), body.getInteger("deliveryTimeLimit"), pack);
+        Shipment shipment = createShipmentRequest.create(UUID.randomUUID().toString(), user, pickupLocation, deliveryLocation, LocalDate.parse(body.getString("pickupDate")), LocalTime.parse(body.getString("pickupTime")), body.getInteger("deliveryTimeLimit"), pack);
         if (validateShipmentRequest.validate(shipment)) {  //valida la richiesta
             eventProducer.publishShipmentRequested(shipment); //invoca il produttore per pubblicare l'evento
+            eventProducer.publishShipmentCreated(shipment.getId()); //invoca il produttore per pubblicare l'evento
             ctx.response().setStatusCode(201).putHeader("Content-Type", "application/json").end(shipment.getId()); //costruisce il messaggio di risposta e lo invia all'api-gateway
         } else {
             ctx.response().setStatusCode(400).end("Invalid request");

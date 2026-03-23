@@ -7,25 +7,41 @@ import buildingblocks.domain.AggregateRoot;
 public class Shipment implements AggregateRoot<String> {
 
     private final String id;
-    private final Position droneInitialPosition;
-    private final Position pickupPosition;
-    private final Position deliveryPosition;
-    private final long assignedAt;
+    private Position droneInitialPosition;
+    private Position pickupPosition;
+    private Position deliveryPosition;
+    private long assignedAt;
+    private double deliverySpeed;
     private ShipmentStatus status;
-    private final double deliverySpeed;
 
-    public Shipment(String id, Position droneInitialPosition, Position pickupPosition, Position deliveryPosition, long assignedAt, double deliverySpeed) {
+    public Shipment(String id) {
         this.id = id;
+        this.droneInitialPosition = null;
+        this.pickupPosition = null;
+        this.deliveryPosition = null;
+        this.assignedAt = 0;
+        this.deliverySpeed = 0;
+        this.status = ShipmentStatus.REQUESTED;
+    }
+
+    //aggiorna la spedizione con le informazioni del drone assegnato
+    public void schedule(Position droneInitialPosition, Position pickupPosition, Position deliveryPosition, long assignedAt, double deliverySpeed) {
         this.droneInitialPosition = droneInitialPosition;
         this.pickupPosition = pickupPosition;
         this.deliveryPosition = deliveryPosition;
         this.assignedAt = assignedAt;
-        this.status = ShipmentStatus.SCHEDULED;
         this.deliverySpeed = deliverySpeed;
+        this.status = ShipmentStatus.SCHEDULED;
     }
 
     //calcola la posizione attuale del drone
     public Position calculateCurrentDronePosition() {
+
+        //se il drone non è stato assegnato
+        if (droneInitialPosition == null){
+            return null;
+        }
+
         double elapsedHours = (System.currentTimeMillis() - assignedAt) / 3600000.0; //calcolo le ore trascorse dall'assegnazione del drone
         double distanceCovered = deliverySpeed * elapsedHours; //calcola la distanza percorsa dal drone
 
@@ -62,6 +78,11 @@ public class Shipment implements AggregateRoot<String> {
 
     //calcola il tempo rimanente alla consegna
     public double calculateRemainingTime() {
+
+        //se il drone non è stato assegnato
+        if (droneInitialPosition == null) {
+            return 0;
+        }
         double elapsedHours = (System.currentTimeMillis() - assignedAt) / 3600000.0; //calcola le ore trascorse dall'assegnazione del drone
         double distanceCovered = deliverySpeed * elapsedHours; //calcola la distanza totale percorsa dal drone
         double totalDistance = calculateDistance(droneInitialPosition, pickupPosition) + calculateDistance(pickupPosition, deliveryPosition); //calcola la distanza totale che il drone deve percorrere (base->ritiro + ritiro->destinazione)
@@ -73,9 +94,23 @@ public class Shipment implements AggregateRoot<String> {
     public String getId() {
         return id;
     }
+
+    //restituisce lo stato in base alla posizione del drone
     public ShipmentStatus getStatus() {
+        if (droneInitialPosition != null) {
+            double elapsedHours = (System.currentTimeMillis() - assignedAt) / 3600000.0; //calcola le ore trascorse dall'assegnazione del drone alla spedizione
+            double distanceCovered = deliverySpeed * elapsedHours; //calcola la distanza totale percorsa dal drone
+            double distanceToPickup = calculateDistance(droneInitialPosition, pickupPosition); //calcola la distanza dalla posizione iniziale del drone al luogo di ritiro
+            double totalDistance = distanceToPickup + calculateDistance(pickupPosition, deliveryPosition); //calcola la distanza totale che il drone deve percorrere
+            if (distanceCovered >= totalDistance) { //se il drone ha raggiunto la destinazione
+                this.status = ShipmentStatus.COMPLETED;
+            } else if (distanceCovered >= distanceToPickup) { //se il drone ha raggiunto il logo di ritiro
+                this.status = ShipmentStatus.IN_PROGRESS;
+            }
+        }
         return status;
     }
+
     public void updateStatus(ShipmentStatus newStatus) {
         this.status = newStatus;
     }

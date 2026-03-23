@@ -7,6 +7,7 @@ import java.time.LocalTime;
 public class Shipment implements AggregateRoot<String> {
 
     private final String id;
+    private final User user;
     private final Position pickupLocation;
     private final Position deliveryLocation;
     private final LocalDate pickupDate;
@@ -14,8 +15,9 @@ public class Shipment implements AggregateRoot<String> {
     private final int deliveryTimeLimit;
     private final Package pack;
 
-    public Shipment(String id, Position pickupLocation, Position deliveryLocation, LocalDate pickupDate, LocalTime pickupTime, int deliveryTimeLimit, Package pack) {
+    public Shipment(String id, User user, Position pickupLocation, Position deliveryLocation, LocalDate pickupDate, LocalTime pickupTime, int deliveryTimeLimit, Package pack) {
         this.id = id;
+        this.user = user;
         this.pickupLocation = pickupLocation;
         this.deliveryLocation = deliveryLocation;
         this.pickupDate = pickupDate;
@@ -27,6 +29,10 @@ public class Shipment implements AggregateRoot<String> {
     @Override
     public String getId() {
         return id;
+    }
+
+    public User getUser() {
+        return user;
     }
 
     public Position getPickupLocation() {

@@ -9,11 +9,12 @@ import request_management.domain.Shipment;
 import java.util.HashMap;
 import java.util.Map;
 
-//broker kafka che pubblica gli eventi di richiesta spedizione
+//producer kafka che pubblica gli eventi di richiesta spedizione
 @Adapter
 public class ShipmentEventProducer {
 
-    private static final String TOPIC = "shipment-requested"; //nome del topic su cui sono pubblicati gli eventi di richieste di spedizione
+    private static final String TOPIC_REQUESTED = "shipment-requested"; //nome del topic su cui sono pubblicati gli eventi di richieste di spedizione
+    private static final String TOPIC_CREATED = "shipment-created";
     private final KafkaProducer<String, String> producer; //producer kafka che invia gli eventi
 
     public ShipmentEventProducer(Vertx vertx) {
@@ -24,7 +25,7 @@ public class ShipmentEventProducer {
         this.producer = KafkaProducer.create(vertx, config); //crea il producer kafka
     }
 
-    //pubblica l'evento sul canale dedicato
+    //pubblica l'evento di richiesta spedizione verso drone-management
     public void publishShipmentRequested(Shipment shipment) {
 
         //costruisce l'evento
@@ -37,7 +38,15 @@ public class ShipmentEventProducer {
         event.put("packageWeight", shipment.getPackage().getWeight());
         event.put("deliveryTimeLimit", shipment.getDeliveryTimeLimit());
 
-        KafkaProducerRecord<String, String> record = KafkaProducerRecord.create(TOPIC, shipment.getId(), event.toString()); //crea l'evento
+        KafkaProducerRecord<String, String> record = KafkaProducerRecord.create(TOPIC_REQUESTED, shipment.getId(), event.toString()); //crea l'evento
         producer.send(record); //pubblica l'evento
+    }
+
+    //pubblica l'evento di creazione richiesta spedizione verso delivery-management
+    public void publishShipmentCreated(String shipmentId) {
+        JSONObject event = new JSONObject();
+        event.put("shipmentId", shipmentId);
+        KafkaProducerRecord<String, String> record = KafkaProducerRecord.create(TOPIC_CREATED, shipmentId, event.toString());
+        producer.send(record);
     }
 }

@@ -7,7 +7,7 @@ import drone_management.application.CheckDroneAvailabilityImpl;
 import drone_management.domain.Drone;
 import drone_management.domain.Position;
 import drone_management.infrastructure.DroneEventProducer;
-import drone_management.infrastructure.ShipmentEventConsumer;
+import drone_management.infrastructure.ShipmentRequestedEventConsumer;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -32,6 +32,6 @@ public class DroneManagementMain {
         DroneEventProducer eventProducer = new DroneEventProducer(vertx);
 
         // crea il consumer Kafka
-        new ShipmentEventConsumer(vertx, assignDrone, drones, eventProducer);
+        new ShipmentRequestedEventConsumer(vertx, assignDrone, drones, eventProducer);
     }
 }

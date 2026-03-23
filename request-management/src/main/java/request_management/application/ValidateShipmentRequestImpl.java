@@ -17,8 +17,12 @@ public class ValidateShipmentRequestImpl implements ValidateShipmentRequest {
             return false;
         }
 
-        // verifica che le posizioni siano valide
-        if (shipment.getPickupLocation() == null || shipment.getDeliveryLocation() == null) {
+        // verifica che le coordinate siano valide
+        if (shipment.getPickupLocation().getLatitude() < -90 || shipment.getPickupLocation().getLatitude() > 90 || shipment.getPickupLocation().getLongitude() < -180 || shipment.getPickupLocation().getLongitude() > 180) {
+            return false;
+        }
+
+        if (shipment.getDeliveryLocation().getLatitude() < -90 || shipment.getDeliveryLocation().getLatitude() > 90 || shipment.getDeliveryLocation().getLongitude() < -180 || shipment.getDeliveryLocation().getLongitude() > 180) {
             return false;
         }
 
