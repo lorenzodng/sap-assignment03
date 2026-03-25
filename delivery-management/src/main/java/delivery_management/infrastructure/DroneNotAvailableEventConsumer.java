@@ -8,18 +8,21 @@ import delivery_management.domain.Shipment;
 import delivery_management.domain.ShipmentStatus;
 import java.util.HashMap;
 import java.util.Map;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 @Adapter
 public class DroneNotAvailableEventConsumer {
 
+    private static final Logger log = LoggerFactory.getLogger(DroneNotAvailableEventConsumer.class);
     private static final String TOPIC = "drone-not-available";
     private final KafkaConsumer<String, String> consumer;
     private final Map<String, Shipment> shipments;
 
-    public DroneNotAvailableEventConsumer(Vertx vertx, Map<String, Shipment> shipments) {
+    public DroneNotAvailableEventConsumer(Vertx vertx, String bootstrapServers, Map<String, Shipment> shipments) {
         this.shipments = shipments;
         Map<String, String> config = new HashMap<>();
-        config.put("bootstrap.servers", System.getenv("KAFKA_BOOTSTRAP_SERVERS"));
+        config.put("bootstrap.servers", bootstrapServers);
         config.put("key.deserializer", "org.apache.kafka.common.serialization.StringDeserializer");
         config.put("value.deserializer", "org.apache.kafka.common.serialization.StringDeserializer");
         config.put("group.id", "delivery-management-group");
@@ -36,6 +39,7 @@ public class DroneNotAvailableEventConsumer {
         Shipment shipment = shipments.get(shipmentId);
         if (shipment != null) {
             shipment.updateStatus(ShipmentStatus.CANCELLED);
+            log.info("Shipment {} cancelled", shipmentId);
         }
     }
 }

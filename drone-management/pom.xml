@@ -40,6 +40,11 @@
             <artifactId>dotenv-java</artifactId>
             <version>3.0.0</version>
         </dependency>
+        <dependency>
+            <groupId>ch.qos.logback</groupId>
+            <artifactId>logback-classic</artifactId>
+            <version>1.5.32</version>
+        </dependency>
     </dependencies>
 
 </project>

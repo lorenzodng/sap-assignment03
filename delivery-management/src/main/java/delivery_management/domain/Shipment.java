@@ -1,11 +1,14 @@
 package delivery_management.domain;
 
 import buildingblocks.domain.AggregateRoot;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 //questo è un esempio della proprietà di modello indipendente del bounded context: Shipment di questo microservizio è diverso da Shipment del gestore richieste
 
 public class Shipment implements AggregateRoot<String> {
 
+    private static final Logger log = LoggerFactory.getLogger(Shipment.class);
     private final String id;
     private Position droneInitialPosition;
     private Position pickupPosition;
@@ -104,8 +107,10 @@ public class Shipment implements AggregateRoot<String> {
             double totalDistance = distanceToPickup + calculateDistance(pickupPosition, deliveryPosition); //calcola la distanza totale che il drone deve percorrere
             if (distanceCovered >= totalDistance) { //se il drone ha raggiunto la destinazione
                 this.status = ShipmentStatus.COMPLETED;
+                log.info("Delivery {} completed", id);
             } else if (distanceCovered >= distanceToPickup) { //se il drone ha raggiunto il logo di ritiro
                 this.status = ShipmentStatus.IN_PROGRESS;
+                log.info("Delivery {} cancelled", id);
             }
         }
         return status;

@@ -8,17 +8,20 @@ import org.json.JSONObject;
 import drone_management.domain.Drone;
 import java.util.HashMap;
 import java.util.Map;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 //producer kafka che pubblica gli eventi di assegnazione drone
 @Adapter
 public class DroneEventProducer {
 
+    private static final Logger log = LoggerFactory.getLogger(DroneEventProducer.class);
     private static final String TOPIC = "drone-assigned";
     private final KafkaProducer<String, String> producer;
 
-    public DroneEventProducer(Vertx vertx) {
+    public DroneEventProducer(Vertx vertx, String bootstrapServers) {
         Map<String, String> config = new HashMap<>();
-        config.put("bootstrap.servers", System.getenv("KAFKA_BOOTSTRAP_SERVERS"));
+        config.put("bootstrap.servers", bootstrapServers);
         config.put("key.serializer", "org.apache.kafka.common.serialization.StringSerializer");
         config.put("value.serializer", "org.apache.kafka.common.serialization.StringSerializer");
         this.producer = KafkaProducer.create(vertx, config);
@@ -41,6 +44,7 @@ public class DroneEventProducer {
 
         KafkaProducerRecord<String, String> record = KafkaProducerRecord.create(TOPIC, shipmentId, event.toString());
         producer.send(record);
+        log.info("Drone {} assigned to shipment {}", drone.getId(), shipmentId);
     }
 
     //pubblica l'evento di drone non disponibile sul canale dedicato
@@ -49,5 +53,6 @@ public class DroneEventProducer {
         event.put("shipmentId", shipmentId);
         KafkaProducerRecord<String, String> record = KafkaProducerRecord.create("drone-not-available", shipmentId, event.toString());
         producer.send(record);
+        log.warn("No available drones for shipment {}", shipmentId);
     }
 }

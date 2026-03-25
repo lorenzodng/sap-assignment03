@@ -10,20 +10,26 @@ import delivery_management.infrastructure.ShipmentCreatedEventConsumer;
 import delivery_management.infrastructure.TrackingDeliveryController;
 import java.util.HashMap;
 import java.util.Map;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class DeliveryManagementMain {
 
+    private static final Logger log = LoggerFactory.getLogger(DeliveryManagementMain.class);
+
     public static void main(String[] args) {
-        Dotenv.load(); //carica le variabili del file .env
+        Dotenv dotenv = Dotenv.configure().directory("delivery-management").load(); //carica le variabili del file .env
+        String bootstrap = dotenv.get("KAFKA_BOOTSTRAP_SERVERS"); //legge il campo
+
         int port = Integer.parseInt(System.getenv("PORT"));
 
         Vertx vertx = Vertx.vertx();
 
         //crea i consumer Kafka
         Map<String, Shipment> shipments = new HashMap<>();
-        new DroneAvailableEventConsumer(vertx, shipments);
-        new DroneNotAvailableEventConsumer(vertx, shipments);
-        new ShipmentCreatedEventConsumer(vertx, shipments);
+        new DroneAvailableEventConsumer(vertx, bootstrap, shipments);
+        new DroneNotAvailableEventConsumer(vertx, bootstrap, shipments);
+        new ShipmentCreatedEventConsumer(vertx, bootstrap, shipments);
 
         //crea il controller REST
         TrackingDeliveryController trackingController = new TrackingDeliveryController(shipments);
@@ -34,5 +40,7 @@ public class DeliveryManagementMain {
 
         //avvia il server HTTP
         vertx.createHttpServer().requestHandler(router).listen(port);
+
+        log.info("DeliveryManagement microservice started");
     }
 }

@@ -7,11 +7,17 @@ import request_management.application.CreateShipmentRequestImpl;
 import request_management.application.ValidateShipmentRequestImpl;
 import request_management.infrastructure.ShipmentEventProducer;
 import request_management.infrastructure.ShipmentRequestController;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class RequestManagementMain {
 
+    private static final Logger log = LoggerFactory.getLogger(RequestManagementMain.class);
+
     public static void main(String[] args) {
-        Dotenv.load(); //carica le variabili del file .env
+        Dotenv dotenv = Dotenv.configure().directory("request-management").load(); //carica le variabili del file .env
+        String bootstrap = dotenv.get("KAFKA_BOOTSTRAP_SERVERS"); //legge il campo
+
         int port = Integer.parseInt(System.getenv("PORT"));
 
         Vertx vertx = Vertx.vertx();
@@ -21,7 +27,7 @@ public class RequestManagementMain {
         ValidateShipmentRequestImpl validateShipmentRequest = new ValidateShipmentRequestImpl();
 
         //crea il producer Kafka
-        ShipmentEventProducer eventProducer = new ShipmentEventProducer(vertx);
+        ShipmentEventProducer eventProducer = new ShipmentEventProducer(vertx, bootstrap);
 
         //crea il controller REST
         ShipmentRequestController controller = new ShipmentRequestController(createShipmentRequest, validateShipmentRequest, eventProducer);
@@ -32,5 +38,7 @@ public class RequestManagementMain {
 
         //avvia il server HTTP
         vertx.createHttpServer().requestHandler(router).listen(port);
+
+        log.info("RequestManagement microservice started");
     }
 }

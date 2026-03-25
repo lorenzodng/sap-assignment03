@@ -9,23 +9,26 @@ import drone_management.domain.Drone;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 //recupera l'evento di creazione richiesta spedizione pubblicato dal gestore richieste
 @Adapter
 public class ShipmentRequestedEventConsumer {
 
+    private static final Logger log = LoggerFactory.getLogger(ShipmentRequestedEventConsumer.class);
     private static final String TOPIC = "shipment-requested";
     private final KafkaConsumer<String, String> consumer;
     private final AssignDrone assignDrone;
     private final List<Drone> drones;
     private final DroneEventProducer eventProducer;
 
-    public ShipmentRequestedEventConsumer(Vertx vertx, AssignDrone assignDrone, List<Drone> drones, DroneEventProducer eventProducer) {
+    public ShipmentRequestedEventConsumer(Vertx vertx, String bootstrapServers, AssignDrone assignDrone, List<Drone> drones, DroneEventProducer eventProducer) {
         this.assignDrone = assignDrone;
         this.drones = drones;
         this.eventProducer = eventProducer;
         Map<String, String> config = new HashMap<>();
-        config.put("bootstrap.servers", System.getenv("KAFKA_BOOTSTRAP_SERVERS"));
+        config.put("bootstrap.servers", bootstrapServers);
         config.put("key.deserializer", "org.apache.kafka.common.serialization.StringDeserializer");
         config.put("value.deserializer", "org.apache.kafka.common.serialization.StringDeserializer");
         config.put("group.id", "drone-management-group"); //gruppo di consumer Kafka usato per tenere traccia di quali messaggi sono già stati letti da un gruppo di istanze di uno stesso microservizio - in questo modo kafka distribuisce i messaggi tra loro senza duplicati
@@ -39,6 +42,7 @@ public class ShipmentRequestedEventConsumer {
     private void assignDroneToShipment(String message) {
         JSONObject event = new JSONObject(message);
         String shipmentId = event.getString("shipmentId");
+        log.info("Shipment request event received {}", shipmentId);
         double pickupLatitude = event.getDouble("pickupLatitude");
         double pickupLongitude = event.getDouble("pickupLongitude");
         double deliveryLatitude = event.getDouble("deliveryLatitude");
@@ -51,7 +55,6 @@ public class ShipmentRequestedEventConsumer {
             assignedDrone.setAvailable(false);
             eventProducer.publishDroneAssigned(shipmentId, assignedDrone, pickupLatitude, pickupLongitude, deliveryLatitude, deliveryLongitude);
         } else {
-            System.out.println("No drone available for shipment: " + shipmentId);
             eventProducer.publishDroneNotAvailable(shipmentId);
         }
     }

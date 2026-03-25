@@ -8,18 +8,21 @@ import org.json.JSONObject;
 import request_management.domain.Shipment;
 import java.util.HashMap;
 import java.util.Map;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 //producer kafka che pubblica gli eventi di richiesta spedizione
 @Adapter
 public class ShipmentEventProducer {
 
+    private static final Logger log = LoggerFactory.getLogger(ShipmentEventProducer.class);
     private static final String TOPIC_REQUESTED = "shipment-requested"; //nome del topic su cui sono pubblicati gli eventi di richieste di spedizione
     private static final String TOPIC_CREATED = "shipment-created";
     private final KafkaProducer<String, String> producer; //producer kafka che invia gli eventi
 
-    public ShipmentEventProducer(Vertx vertx) {
+    public ShipmentEventProducer(Vertx vertx, String bootstrapServers) {
         Map<String, String> config = new HashMap<>();
-        config.put("bootstrap.servers", System.getenv("KAFKA_BOOTSTRAP_SERVERS")); //legge dal file .env
+        config.put("bootstrap.servers", bootstrapServers);
         config.put("key.serializer", "org.apache.kafka.common.serialization.StringSerializer"); //la chiave dell'evento è in formato stinga
         config.put("value.serializer", "org.apache.kafka.common.serialization.StringSerializer"); //il valore dell'evento è in formato stringa
         this.producer = KafkaProducer.create(vertx, config); //crea il producer kafka
@@ -40,6 +43,7 @@ public class ShipmentEventProducer {
 
         KafkaProducerRecord<String, String> record = KafkaProducerRecord.create(TOPIC_REQUESTED, shipment.getId(), event.toString()); //crea l'evento
         producer.send(record); //pubblica l'evento
+        log.info("Shipment {} request event published", shipment.getId());
     }
 
     //pubblica l'evento di creazione richiesta spedizione verso delivery-management
@@ -48,5 +52,6 @@ public class ShipmentEventProducer {
         event.put("shipmentId", shipmentId);
         KafkaProducerRecord<String, String> record = KafkaProducerRecord.create(TOPIC_CREATED, shipmentId, event.toString());
         producer.send(record);
+        log.info("Shipment {} create event published", shipmentId);
     }
 }

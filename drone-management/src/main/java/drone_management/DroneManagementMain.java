@@ -10,11 +10,16 @@ import drone_management.infrastructure.DroneEventProducer;
 import drone_management.infrastructure.ShipmentRequestedEventConsumer;
 import java.util.ArrayList;
 import java.util.List;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class DroneManagementMain {
 
+    private static final Logger log = LoggerFactory.getLogger(DroneManagementMain.class);
+
     public static void main(String[] args) {
-        Dotenv.load();
+        Dotenv dotenv = Dotenv.configure().directory("drone-management").load(); //carica le variabili del file .env
+        String bootstrap = dotenv.get("KAFKA_BOOTSTRAP_SERVERS"); //legge il campo
 
         Vertx vertx = Vertx.vertx();
 
@@ -29,9 +34,11 @@ public class DroneManagementMain {
         drones.add(new Drone("drone-3", new Position(45.48, 9.21)));
 
         // crea il producer Kafka
-        DroneEventProducer eventProducer = new DroneEventProducer(vertx);
+        DroneEventProducer eventProducer = new DroneEventProducer(vertx, bootstrap);
 
         // crea il consumer Kafka
-        new ShipmentRequestedEventConsumer(vertx, assignDrone, drones, eventProducer);
+        new ShipmentRequestedEventConsumer(vertx, bootstrap, assignDrone, drones, eventProducer);
+
+        log.info("DroneManagement microservice started");
     }
 }

@@ -15,10 +15,10 @@ public class ApiGatewayController {
     private final String requestManagementUrl;
     private final String deliveryManagementUrl;
 
-    public ApiGatewayController(Vertx vertx) {
+    public ApiGatewayController(Vertx vertx, String requestManagementUrl, String deliveryManagementUrl) {
         this.client = WebClient.create(vertx);
-        this.requestManagementUrl = System.getenv("REQUEST_MANAGEMENT_URL");
-        this.deliveryManagementUrl = System.getenv("DELIVERY_MANAGEMENT_URL");
+        this.requestManagementUrl = requestManagementUrl;
+        this.deliveryManagementUrl = deliveryManagementUrl;
     }
 
     //registra le rotte che il client può richiamare
