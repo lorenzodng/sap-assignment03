@@ -111,10 +111,8 @@ public class Shipment implements AggregateRoot<String> {
             double totalDistance = distanceToPickup + calculateDistance(pickupPosition, deliveryPosition); //calcola la distanza totale che il drone deve percorrere
             if (distanceCovered >= totalDistance) { //se il drone ha raggiunto la destinazione
                 this.status = ShipmentStatus.COMPLETED;
-                log.info("Delivery {} completed", id);
             } else if (distanceCovered >= distanceToPickup) { //se il drone ha raggiunto il logo di ritiro
                 this.status = ShipmentStatus.IN_PROGRESS;
-                log.info("Delivery {} in progress", id);
             }
         }
         return status;

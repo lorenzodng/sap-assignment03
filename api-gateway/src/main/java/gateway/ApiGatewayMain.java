@@ -4,6 +4,7 @@ import io.github.cdimascio.dotenv.Dotenv;
 import io.vertx.core.Vertx;
 import io.vertx.ext.web.Router;
 import gateway.infrastructure.ApiGatewayController;
+import io.vertx.ext.web.handler.StaticHandler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -26,6 +27,10 @@ public class ApiGatewayMain {
 
         //crea il router e registra le rotte
         Router router = Router.router(vertx);
+        apiGatewayController.registerRoutes(router);
+
+        //configura l'accesso all'interfaccia
+        router.route("/ui/*").handler(StaticHandler.create("webroot"));
         apiGatewayController.registerRoutes(router);
 
         //avvia il server HTTP

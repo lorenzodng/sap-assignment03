@@ -2,11 +2,21 @@ package request.application;
 
 import request.domain.Shipment;
 
+import java.time.LocalDateTime;
+
 //verifica che i dati della richiesti siano validi (non che la consegna sia fattibile)
 public class ValidateShipmentRequestImpl implements ValidateShipmentRequest {
 
     @Override
     public boolean validate(Shipment shipment) {
+
+        LocalDateTime pickupDateTime = LocalDateTime.of(shipment.getPickupDate(), shipment.getPickupTime());
+
+        // verifica che la data e l'ora di ritiro siano nel futuro
+        if (pickupDateTime.isBefore(LocalDateTime.now())) {
+            return false;
+        }
+
         // verifica che il peso del pacco sia maggiore di zero
         if (shipment.getPackage().getWeight() <= 0) {
             return false;
