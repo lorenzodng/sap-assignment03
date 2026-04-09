@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="it">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Nuova spedizione</title>
+        <link rel="stylesheet" href="css/index.css">
+    </head>
+
+    <body>
+        <div class="wrapper">
+            <p class="page-title">Nuova spedizione</p>
+            <p class="page-sub">Compila tutti i campi per richiedere un drone</p>
+
+            <div class="form-card">
+                <div class="section-label">Mittente</div>
+                <div class="fields">
+                    <div class="field"><label>Nome</label><input id="userName" placeholder="Mario"
+                                                                 oninput="validate()"/></div>
+                    <div class="field"><label>Cognome</label><input id="userSurname" placeholder="Rossi"
+                                                                    oninput="validate()"/>
+                    </div>
+                </div>
+
+                <div class="section-label section-gap">Ritiro</div>
+                <div class="fields">
+                    <div class="field full"><label>Indirizzo di ritiro</label><input id="pickupAddress"
+                                                                                     placeholder="Piazza Navona, Roma"
+                                                                                     oninput="validate()"/></div>
+                    <div class="field"><label>Data</label><input id="pickupDate" type="date" oninput="validate()"/>
+                    </div>
+                    <div class="field"><label>Ora</label><input id="pickupTime" type="time" oninput="validate()"/></div>
+                </div>
+
+                <div class="section-label section-gap">Consegna</div>
+                <div class="fields">
+                    <div class="field full"><label>Indirizzo di consegna</label><input id="deliveryAddress"
+                                                                                       placeholder="Piazza Venezia, Roma"
+                                                                                       oninput="validate()"/></div>
+                    <div class="field full"><label>Limite consegna (minuti)</label><input id="deliveryTimeLimit"
+                                                                                          type="number" placeholder="60"
+                                                                                          min="1" oninput="validate()"/>
+                    </div>
+                </div>
+
+                <div class="section-label section-gap">Pacco</div>
+                <div class="fields">
+                    <div class="field"><label>Peso (kg)</label><input id="weight" type="number" placeholder="1.5"
+                                                                      step="0.1" min="0.1" oninput="validate()"/></div>
+                    <div class="field"><label>Fragile</label>
+                        <select id="fragile" onchange="validate()">
+                            <option value="">Seleziona</option>
+                            <option value="false">No</option>
+                            <option value="true">Si</option>
+                        </select>
+                    </div>
+                </div>
+
+                <button class="submit-btn" id="submitBtn" disabled onclick="submitForm()">Richiedi</button>
+                <div id="formMsg"></div>
+            </div>
+        </div>
+
+        <script src="js/index.js"></script>
+    </body>
+</html>

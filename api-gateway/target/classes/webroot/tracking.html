@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="it">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Tracciamento spedizione</title>
+        <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
+        <link rel="stylesheet" href="css/tracking.css">
+    </head>
+
+    <body>
+        <div class="wrapper">
+            <p class="page-title">Tracciamento spedizione</p>
+            <div class="id-box" id="shipmentId"></div>
+
+            <div class="card">
+                <div class="stats">
+                    <div class="stat">
+                        <div class="stat-val" id="statStatus">—</div>
+                        <div class="stat-label">Stato</div>
+                    </div>
+                    <div class="stat">
+                        <div class="stat-val" id="statTime">—</div>
+                        <div class="stat-label">Tempo rimanente</div>
+                    </div>
+                    <div class="stat">
+                        <div class="stat-val" id="statPos">—</div>
+                        <div class="stat-label">Posizione drone</div>
+                    </div>
+                </div>
+                <div class="map-container">
+                    <div id="map"></div>
+                    <div id="map-placeholder">
+                        <p>Drone in attesa della partenza...</p>
+                        <div class="spinner"></div>
+                    </div>
+                </div>
+                <div class="update-info" id="updateInfo"></div>
+            </div>
+        </div>
+
+        <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+        <script src="js/tracking.js"></script>
+    </body>
+</html>
