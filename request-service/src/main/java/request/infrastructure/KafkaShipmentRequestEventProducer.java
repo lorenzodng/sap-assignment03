@@ -14,6 +14,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 //producer kafka che pubblica gli eventi di richiesta spedizione
+//proxy
 @Adapter
 public class KafkaShipmentRequestEventProducer implements ShipmentRequestEventProducer {
 
