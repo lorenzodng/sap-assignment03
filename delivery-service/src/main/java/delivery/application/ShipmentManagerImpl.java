@@ -20,12 +20,11 @@ public class ShipmentManagerImpl implements ShipmentManager {
     */
     @Override
     public void createShipmentFromAssignment(String id, boolean assigned, Double droneLat, Double droneLon, Double pickupLat, Double pickupLon, Double deliveryLat, Double deliveryLon, Long assignedAt, Double speed) {
-        Shipment shipment;
+        Shipment shipment = new Shipment(id, new Position(droneLat, droneLon), new Position(pickupLat, pickupLon), new Position(deliveryLat, deliveryLon), assignedAt, speed);
         if (assigned) {
-            shipment = new Shipment(id, new Position(droneLat, droneLon), new Position(pickupLat, pickupLon), new Position(deliveryLat, deliveryLon), assignedAt, speed);
             log.info("Shipment {} scheduled", id);
         } else {
-            shipment = new Shipment(id);
+            shipment.cancelled();
             log.info("Shipment {} cancelled", id);
         }
         repository.save(shipment);

@@ -37,7 +37,7 @@ public class TrackingDeliveryController {
 
             //costruisce il messaggio json
             JSONObject response = new JSONObject();
-            ShipmentStatus status = shipment.getStatus();
+            ShipmentStatus status = shipment.updateStatus();
             log.info("Shipment {} status: {}", id, status.name());
             response.put("status", status.name());
             if (status == ShipmentStatus.CANCELLED) { //se lo stato della richiesta è CANCELLED

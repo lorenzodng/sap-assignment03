@@ -27,22 +27,17 @@ public class Shipment implements AggregateRoot<String> {
         this.status = ShipmentStatus.SCHEDULED;
     }
 
-    //costruttore per la spedizione cancellata (drone non disponibile)
-    public Shipment(String id) {
-        this.id = id;
-        this.droneInitialPosition = null;
-        this.pickupPosition = null;
-        this.deliveryPosition = null;
-        this.assignedAt = 0;
-        this.deliverySpeed = 0;
-        this.status = ShipmentStatus.CANCELLED;
+    //imposta la spedizione come cancellata
+    public void cancelled() {
+        if (status != ShipmentStatus.COMPLETED) {
+            status = ShipmentStatus.CANCELLED;
+        }
     }
 
     //calcola la posizione attuale del drone
     public Position calculateCurrentDronePosition() {
 
-        //se il drone non è stato assegnato
-        if (droneInitialPosition == null){
+        if (droneInitialPosition == null || status == ShipmentStatus.CANCELLED) {
             return null;
         }
 
@@ -76,10 +71,10 @@ public class Shipment implements AggregateRoot<String> {
     //calcola il tempo rimanente alla consegna
     public double calculateRemainingTime() {
 
-        //se il drone non è stato assegnato
-        if (droneInitialPosition == null) {
+        if (status == ShipmentStatus.CANCELLED) {
             return 0;
         }
+
         double elapsedHours = (System.currentTimeMillis() - assignedAt) / MS_TO_HOURS; //calcola le ore trascorse dall'assegnazione del drone
         double distanceCovered = deliverySpeed * elapsedHours; //calcola la distanza totale percorsa dal drone
         double totalDistance = GeoUtils.haversine(droneInitialPosition.getLatitude(), droneInitialPosition.getLongitude(), pickupPosition.getLatitude(), pickupPosition.getLongitude()) + GeoUtils.haversine(pickupPosition.getLatitude(), pickupPosition.getLongitude(), deliveryPosition.getLatitude(), deliveryPosition.getLongitude()); //calcola la distanza totale che il drone deve percorrere (base->ritiro + ritiro->destinazione)
@@ -93,8 +88,8 @@ public class Shipment implements AggregateRoot<String> {
     }
 
     //restituisce lo stato in base alla posizione del drone
-    public ShipmentStatus getStatus() {
-        if (droneInitialPosition != null) {
+    public ShipmentStatus updateStatus() {
+        if (status != ShipmentStatus.CANCELLED) {
             double elapsedHours = (System.currentTimeMillis() - assignedAt) / MS_TO_HOURS; //calcola le ore trascorse dall'assegnazione del drone alla spedizione
             double distanceCovered = deliverySpeed * elapsedHours; //calcola la distanza totale percorsa dal drone
             double distanceToPickup = GeoUtils.haversine(droneInitialPosition.getLatitude(), droneInitialPosition.getLongitude(), pickupPosition.getLatitude(), pickupPosition.getLongitude()); //calcola la distanza dalla posizione iniziale del drone al luogo di ritiro
@@ -105,6 +100,7 @@ public class Shipment implements AggregateRoot<String> {
                 this.status = ShipmentStatus.IN_PROGRESS;
             }
         }
+
         return status;
     }
 }
