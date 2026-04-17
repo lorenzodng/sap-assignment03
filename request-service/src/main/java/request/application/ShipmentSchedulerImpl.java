@@ -3,6 +3,7 @@ package request.application;
 import io.vertx.core.Future;
 import io.vertx.core.Vertx;
 import request.domain.Shipment;
+import java.time.Duration;
 import java.time.LocalDateTime;
 
 public class ShipmentSchedulerImpl implements ShipmentScheduler {
@@ -18,7 +19,7 @@ public class ShipmentSchedulerImpl implements ShipmentScheduler {
     @Override
     public Future<Void> schedule(Shipment shipment) {
         LocalDateTime pickupDateTime = LocalDateTime.of(shipment.getPickupDate(), shipment.getPickupTime());
-        long delayMs = java.time.Duration.between(LocalDateTime.now(), pickupDateTime).toMillis();
+        long delayMs = Duration.between(LocalDateTime.now(), pickupDateTime).toMillis();
 
         //se la data/ora è già passata o è adesso, il drone parte
         if (delayMs <= 0) {
