@@ -5,7 +5,7 @@ import io.prometheus.metrics.core.metrics.Histogram;
 import io.prometheus.metrics.exporter.httpserver.HTTPServer;
 import request.application.RequestMetrics;
 
-//raccoglie le metriche di richieste validate e non validate
+//raccoglie le metriche di prestazione
 @Adapter
 public class PrometheusRequestMetricsProxy implements RequestMetrics {
 
