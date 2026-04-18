@@ -18,7 +18,8 @@ import org.slf4j.LoggerFactory;
 public class KafkaDroneEventProducer implements DroneEventProducer {
 
     private static final Logger log = LoggerFactory.getLogger(KafkaDroneEventProducer.class);
-    private static final String TOPIC = "drone-assigned";
+    private static final String TOPIC_ASSIGNED= "drone-assigned";
+    private static final String TOPIC_NOT_AVAILABLE= "drone-not-available";
     private final KafkaProducer<String, String> producer;
 
     public KafkaDroneEventProducer(Vertx vertx, String bootstrapServers) {
@@ -45,7 +46,7 @@ public class KafkaDroneEventProducer implements DroneEventProducer {
         event.put("deliveryLongitude", deliveryLongitude);
         event.put("assignedAt", System.currentTimeMillis());
 
-        KafkaProducerRecord<String, String> record = KafkaProducerRecord.create(TOPIC, shipmentId, event.toString());
+        KafkaProducerRecord<String, String> record = KafkaProducerRecord.create(TOPIC_ASSIGNED, shipmentId, event.toString());
         producer.send(record)
                 .onSuccess(v-> {
                     log.info("Drone {} assigned to shipment {}", drone.getId(), shipmentId);
@@ -60,7 +61,7 @@ public class KafkaDroneEventProducer implements DroneEventProducer {
         JSONObject event = new JSONObject();
         event.put("shipmentId", shipmentId);
 
-        KafkaProducerRecord<String, String> record = KafkaProducerRecord.create("drone-not-available", shipmentId, event.toString());
+        KafkaProducerRecord<String, String> record = KafkaProducerRecord.create(TOPIC_NOT_AVAILABLE, shipmentId, event.toString());
         producer.send(record)
                 .onSuccess(v-> {
                     log.warn("No available drones for shipment {}", shipmentId);
