@@ -26,7 +26,6 @@ public class RequestServiceMain {
         //metriche
         RequestMetrics metrics = null;
         try {
-            // Qui istanzi l'exporter Prometheus sulla metricsPort
             metrics = new PrometheusRequestMetricsProxy(metricsPort);
             log.info("Prometheus metrics exporter started on port {}", metricsPort);
         } catch (Exception e) {

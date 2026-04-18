@@ -30,7 +30,7 @@ public class ShipmentRequestOrchestratorImpl implements ShipmentRequestOrchestra
             validator.validate(shipment);
             log.info("Shipment {} request created", shipment.getId());
 
-            //step 2: verifica il tempo trascorso e notifica drone-service
+            //step 2: verifica il tempo trascorso e pubblica l'evento
             return scheduler.schedule(shipment).map(v -> shipment); //trasforma il valore di ritorno in una Future
         } catch (Exception e) {
             return Future.failedFuture(e);

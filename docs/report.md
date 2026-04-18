@@ -44,7 +44,7 @@ Depending on the outcome, it publishes either a `drone-assigned` event — with 
 **`delivery-service`** consumes both events via two dedicated consumers: `DroneAssignedEventConsumer`, which schedules the shipment, and `DroneUnavailableEventConsumer`, which cancels it. 
 Both delegate to `ShipmentManagerImpl`, which coordinates the delivery flow by creating or cancelling shipments and persisting their state via a repository.
 
-**`api-gateway`** retains synchronous HTTP communication with `request-service` and `delivery-service`, as it is the entry point for client interactions and does not participate in the internal event chain.
+**`api-gateway`** uses a non-blocking request/response model for communication with `request-service` and `delivery-service`, as it is the entry point for client interactions and does not participate in the internal event chain.
 
 ---
 
